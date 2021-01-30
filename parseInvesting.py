@@ -45,10 +45,6 @@ class ParseInvesting:
         return arRussiaStocks
 
 
-apis = ParseInvesting()
-while True:
-    print(apis.getQuotation({'type': 'major-indices', 'typeStats': 'indices'}))
-    time.sleep(3)
 
 
 
