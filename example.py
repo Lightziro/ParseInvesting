@@ -3,14 +3,28 @@ import parseInvesting
 # Creating a class object
 investing = parseInvesting.ParseInvesting()
 
-# Get index quotes for link = https://ru.investing.com/indices/major-indices
-result = investing.getQuotation({'type': 'major-indices', 'typeStats': 'indices'})
+# Get stock quotes in the MOEX index
+result = investing.getQuotationsMOEX()
 print(result)
 
-# Get quotes of Russian stocks for link = https://ru.investing.com/equities/russia
-result = investing.getQuotation({'type': 'russia', 'typeStats': 'equities'})
+# Get stock quotes in the S&P500 index
+result = investing.getQuotationSP500()
 print(result)
 
-# Get quotes of USA stocks for link = https://ru.investing.com/equities/americas
-result = investing.getQuotation({'type': 'americas', 'typeStats': 'equities'})
+# Get stock quotes in the NASDAQ100 index
+result = investing.getQuotationsNasdaq100()
 print(result)
+
+# Get stock quotes in the Dow Jones index
+result = investing.getQuotationsDowJones()
+print(result)
+
+# Get stock quotes in the RTS index
+result = investing.getQuotationsRTS()
+print(result)
+
+# Getting a gold futures quote
+print(investing.getQuotationByName('Золото'))
+
+# Getting a quote for the Sberbank stock
+print(investing.getQuotationByName('Сбербанк'))
