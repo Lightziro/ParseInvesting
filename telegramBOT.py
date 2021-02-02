@@ -7,11 +7,10 @@ from telebot import types
 config = '1666624885:AAFa62GqMHuWMUbpJALC2gKrbTG6lzmCRMU'
 
 bot = telebot.TeleBot(config)
-now = datetime.datetime.now()
 method = custom.method()
 @bot.message_handler(commands=['start'])
 def welcome(message):
-
+    now = datetime.datetime.now()
     if now.hour >= 10 and now.hour < 17:
         welcomeMessage = 'Доброго дня, '
     elif now.hour >= 17 and now.hour < 23:
@@ -35,6 +34,7 @@ def welcome(message):
 @bot.message_handler(content_types=['text'])
 def message(message):
     investing = parseInvesting.ParseInvesting()
+    now = datetime.datetime.now()
     nowDate = datetime.datetime(now.year, now.month, now.day, now.hour, now.minute)
     messageList = {
         'close': '🔓 Пока что у меня нет информации, так-как биржа закрыта, подожди немного.. 🔓',
@@ -46,7 +46,7 @@ def message(message):
 
         if method.in_array(today.weekday(), [5, 6]):
             messageInfo = messageList['close']
-        elif nowDate > datetime.datetime(now.year, now.month, now.day, 18, 45) or \
+        elif nowDate > datetime.datetime(now.year, now.month, now.day, 19, 15) or \
                 nowDate < datetime.datetime(now.year, now.month, now.day, 10, 1):
 
             messageInfo = messageList['close']
@@ -63,7 +63,8 @@ def message(message):
                 nowDate < datetime.datetime(now.year, now.month, now.day, 17, 30):
 
             messageInfo = messageList['close']
-        # messageInfo = investing.getFullMessageSituation({'type': 'USA'})
+        else:
+            messageInfo = investing.getFullMessageSituation({'type': 'USA'})
 
     bot.send_message(message.chat.id, messageInfo)
 
