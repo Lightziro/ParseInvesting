@@ -96,7 +96,7 @@ def callback_inline(call):
         if call.message:
             if method.in_array(call.data, ['good', 'so-so', 'bad']):
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                      text="Спасибо за ваш отзыв!", reply_markup=None)
+                                      text="📕Спасибо за ваш отзыв!📕", reply_markup=None)
 
     except Exception as e:
         print(repr(e))
