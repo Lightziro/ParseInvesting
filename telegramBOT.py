@@ -35,7 +35,6 @@ def welcome(message):
 def message(message):
     investing = parseInvesting.ParseInvesting()
     nowTime = datetime.datetime.now()
-    print([nowTime, nowTime])
     messageList = {
         'close': '🔓 Пока что у меня нет информации, так-как биржа закрыта, подожди немного.. 🔓',
         'weekend': '🔓 Сегодня выходной день, биржа не работает, подожди немного.. 🔓'
