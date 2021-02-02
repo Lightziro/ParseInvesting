@@ -2,12 +2,16 @@ import telebot
 import datetime
 import parseInvesting
 import custom
+import random
 from telebot import types
+import stockMarket
 
 config = '1666624885:AAFa62GqMHuWMUbpJALC2gKrbTG6lzmCRMU'
 
 bot = telebot.TeleBot(config)
 method = custom.method()
+
+
 @bot.message_handler(commands=['start'])
 def welcome(message):
     now = datetime.datetime.now()
@@ -31,40 +35,71 @@ def welcome(message):
                                       "фондовом рынке на сегодняшний день".format(message.from_user, bot.get_me()),
                      parse_mode='html', reply_markup=markup)
 
+
 @bot.message_handler(content_types=['text'])
 def message(message):
-    investing = parseInvesting.ParseInvesting()
     nowTime = datetime.datetime.now()
+    market = stockMarket.stockMarket()
+    sendQuestion = bool(False)
     messageList = {
         'close': '🔓 Пока что у меня нет информации, так-как биржа закрыта, подожди немного.. 🔓',
         'weekend': '🔓 Сегодня выходной день, биржа не работает, подожди немного.. 🔓'
     }
+    splitMessage = message.text.split()
 
-    if message.text == '🇷🇺 Российский рынок - сейчас':
+    if method.in_array(message.text, [market.ruMarket['textButton'], market.usMarket['textButton']]):
+
+        typeMarket = market.ruMarket if message.text == market.ruMarket['textButton'] else market.usMarket
+
         today = datetime.datetime.today()
 
         if method.in_array(today.weekday(), [5, 6]):
+            # if today is a day off
             messageInfo = messageList['close']
-        elif nowTime > datetime.datetime(nowTime.year, nowTime.month, nowTime.day, 19, 15) or \
-                nowTime < datetime.datetime(nowTime.year, nowTime.month, nowTime.day, 10, 1):
 
+        elif nowTime > typeMarket['workTime']['workUntil'] or nowTime < typeMarket['workTime']['workWith']:
+            # if the exchange's working hours are over
             messageInfo = messageList['close']
+
         else:
-
+            # output information from the exchange
             investing = parseInvesting.ParseInvesting()
-            messageInfo = investing.getFullMessageSituation()
+            messageInfo = investing.getFullMessageSituation({'type': typeMarket['typeName']})
 
-    elif message.text == '🇱🇷 Американский рынок - сейчас':
-        if method.in_array(datetime.datetime.today().weekday(), [5,6]):
-            messageInfo = messageList['weekend']
+            randQuestion = random.randint(0, 5)
+            if randQuestion % 2 != 0:
+                sendQuestion = True
+                messageQuestion = 'Как Вам сегодняшняя ситуация на рынке?'
+                markClient = types.InlineKeyboardMarkup(row_width=2)
+                goodBtn = types.InlineKeyboardButton("👍", callback_data='good')
+                sosoBtn = types.InlineKeyboardButton("✊", callback_data='so-so')
+                badBtn = types.InlineKeyboardButton("👎", callback_data='bad')
+                markClient.add(goodBtn, sosoBtn, badBtn)
 
-        elif nowTime > datetime.datetime(nowTime.year, nowTime.month, nowTime.day, 23, 45) or \
-                nowTime < datetime.datetime(nowTime.year, nowTime.month, nowTime.day, 17, 30):
+        bot.send_message(message.chat.id, messageInfo)
+        if sendQuestion and sendQuestion not in locals():
+            bot.send_message(message.chat.id, messageQuestion, reply_markup=markClient)
 
-            messageInfo = messageList['close']
-        else:
-            messageInfo = investing.getFullMessageSituation({'type': 'USA'})
+    if message.text[0] == '!':
+        quotationTextMessage = message.text.replace('!', '')
+        investing = parseInvesting.ParseInvesting()
 
-    bot.send_message(message.chat.id, messageInfo)
+        if method.in_array(quotationTextMessage, investing.listStocksName):
 
-bot.polling(none_stop=True)
+            print(investing.getQuotationByName(quotationTextMessage))
+
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    try:
+        if call.message:
+            if method.in_array(call.data, ['good', 'so-so', 'bad']):
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                      text="Спасибо за ваш отзыв!", reply_markup=None)
+
+    except Exception as e:
+        print(repr(e))
+
+
+bot.start(none_stop=True)

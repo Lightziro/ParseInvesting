@@ -33,17 +33,21 @@ class ParseInvesting:
         'USD' : {'type': 'Currency', 'code': 'usd-rub'},
     }
 
-    # / Function for sending a get request to a site / #
-    # / @params string url - link to the site / #
-    # / @return object response - object with content / #
     def getResponse(self, url = str()):
+        """
+        Function for sending a get request to a site
+        :param url: link to the site
+        :return: object with content
+        """
         response = requests.get(url, headers=self.HEADERS)
         return response
 
-    # / Function for getting quotes by parameters / #
-    # / @params dict params - custom parameters in the function / #
-    # / @return dict arInfo - data about quotes in JSON format / #
     def getListQuotation(self, params = dict({'type': 'russia', 'typeStats': 'equities'})):
+        """
+        Function for getting quotes by parameters
+        :param params: custom parameters in the function
+        :return: data about quotes in JSON format
+        """
         content = self.getResponse(self.url + f"{params['typeStats']}/{params['type']}")
         arInfo = []
 
@@ -76,10 +80,12 @@ class ParseInvesting:
                     sortProcess = True
         return arInfo
 
-    # / Function for getting a quote by code / #
-    # / @params dict params - custom parameters in the function / #
-    # / @return dict arInfo - data about quotes in JSON format / #
     def getQuotationByCode(self, params = dict()):
+        """
+        Function for getting a quote by code
+        :param params: custom parameters in the function
+        :return: data about quotes in JSON format
+        """
         content = self.getResponse(self.url + f"{params['type']}/{params['code']}")
         arInfo = []
 
