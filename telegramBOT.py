@@ -34,8 +34,8 @@ def welcome(message):
 @bot.message_handler(content_types=['text'])
 def message(message):
     investing = parseInvesting.ParseInvesting()
-    now = datetime.datetime.now()
-    nowDate = datetime.datetime(now.year, now.month, now.day, now.hour, now.minute)
+    nowTime = datetime.datetime.now()
+    print([nowTime, nowTime])
     messageList = {
         'close': '🔓 Пока что у меня нет информации, так-как биржа закрыта, подожди немного.. 🔓',
         'weekend': '🔓 Сегодня выходной день, биржа не работает, подожди немного.. 🔓'
@@ -46,8 +46,8 @@ def message(message):
 
         if method.in_array(today.weekday(), [5, 6]):
             messageInfo = messageList['close']
-        elif nowDate > datetime.datetime(now.year, now.month, now.day, 19, 15) or \
-                nowDate < datetime.datetime(now.year, now.month, now.day, 10, 1):
+        elif nowTime > datetime.datetime(nowTime.year, nowTime.month, nowTime.day, 19, 15) or \
+                nowTime < datetime.datetime(nowTime.year, nowTime.month, nowTime.day, 10, 1):
 
             messageInfo = messageList['close']
         else:
@@ -59,8 +59,8 @@ def message(message):
         if method.in_array(datetime.datetime.today().weekday(), [5,6]):
             messageInfo = messageList['weekend']
 
-        elif nowDate > datetime.datetime(now.year, now.month, now.day, 23, 45) or \
-                nowDate < datetime.datetime(now.year, now.month, now.day, 17, 30):
+        elif nowTime > datetime.datetime(nowTime.year, nowTime.month, nowTime.day, 23, 45) or \
+                nowTime < datetime.datetime(nowTime.year, nowTime.month, nowTime.day, 17, 30):
 
             messageInfo = messageList['close']
         else:
