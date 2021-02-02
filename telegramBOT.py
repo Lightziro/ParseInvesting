@@ -102,4 +102,4 @@ def callback_inline(call):
         print(repr(e))
 
 
-bot.start(none_stop=True)
+bot.polling(none_stop=True)
