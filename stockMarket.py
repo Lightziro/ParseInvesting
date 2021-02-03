@@ -12,6 +12,7 @@ class stockMarket:
             'workUntil': datetime.datetime(time.year, time.month, time.day, 18, 45),
         },
         'typeName': 'Russia',
+        'currentStock': ['Сбербанк', 'Газпром', 'Polymetal', 'ВТБ']
     }
     usMarket = {
         'textButton': '🇱🇷 Американский рынок - сейчас',
@@ -20,6 +21,7 @@ class stockMarket:
             'workUntil': datetime.datetime(time.year, time.month, time.day, 23, 45),
         },
         'typeName': 'USA',
+        'currentStock': ['Apple', 'Microsoft', 'Facebook', 'Tesla']
     }
 
     def __init__(self):

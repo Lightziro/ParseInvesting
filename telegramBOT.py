@@ -1,7 +1,7 @@
 import telebot
 import datetime
-import parseInvesting
-import custom
+from parseInvesting import ParseQuotation
+from custom import method
 import random
 from telebot import types
 import stockMarket
@@ -9,8 +9,6 @@ import stockMarket
 config = '1666624885:AAFa62GqMHuWMUbpJALC2gKrbTG6lzmCRMU'
 
 bot = telebot.TeleBot(config)
-method = custom.method()
-
 
 @bot.message_handler(commands=['start'])
 def welcome(message):
@@ -43,7 +41,8 @@ def message(message):
     sendQuestion = bool(False)
     messageList = {
         'close': '🔓 Пока что у меня нет информации, так-как биржа закрыта, подожди немного.. 🔓',
-        'weekend': '🔓 Сегодня выходной день, биржа не работает, подожди немного.. 🔓'
+        'weekend': '🔓 Сегодня выходной день, биржа не работает, подожди немного.. 🔓',
+        'dontKnow': '📊К сожалению в моём списке пока нет информации про этот котирующий инструмент📊'
     }
     splitMessage = message.text.split()
 
@@ -63,8 +62,7 @@ def message(message):
 
         else:
             # output information from the exchange
-            investing = parseInvesting.ParseInvesting()
-            messageInfo = investing.getFullMessageSituation({'type': typeMarket['typeName']})
+            messageInfo = ParseQuotation.getFullMessageSituation({'type': typeMarket['typeName']})
 
             randQuestion = random.randint(0, 5)
             if randQuestion % 2 != 0:
@@ -82,11 +80,19 @@ def message(message):
 
     if message.text[0] == '!':
         quotationTextMessage = message.text.replace('!', '')
-        investing = parseInvesting.ParseInvesting()
+        # investing = ParseQuotation.ParseInvesting()
 
-        if method.in_array(quotationTextMessage, investing.listStocksName):
+        if method.in_array(quotationTextMessage, ParseQuotation.listStocksName):
 
-            print(investing.getQuotationByName(quotationTextMessage))
+            quotationInfo = ParseQuotation.getQuotationByName(quotationTextMessage)
+            quotationInfo.update({'Name': quotationTextMessage})
+
+            resultMessage = ParseQuotation.getInfoMessageQuotation(quotationInfo)
+
+        else:
+            resultMessage = messageList['dontKnow']
+
+        bot.send_message(message.chat.id, resultMessage)
 
 
 
