@@ -3,6 +3,7 @@
 # (С) 2020 Russia, Kirov - Light3iro
 # -----------------------------
 import re
+import datetime
 class method:
 
     @staticmethod
@@ -47,7 +48,7 @@ class method:
         :return: True If the variable is empty, otherwise False
         """
         result = bool(True)
-        if len(variable) > 1:
+        if method.is_array(variable) and len(variable) > 1:
             for variables in variable:
                 if variables:
                     result = False
@@ -82,6 +83,12 @@ class method:
             return float(number)
         except:
             return False
+
+    @staticmethod
+    def getNowDate():
+        now = datetime.datetime.now()
+        return datetime.datetime(now.year, now.month, now.day, now.hour, now.minute, now.second)
+
 
 # -----------------------------
 # Class for executing queries

@@ -5,13 +5,24 @@ from custom import method
 import random
 from telebot import types
 import stockMarket
+import mysql.connector
+from User import User
+import re
 
 config = '1666624885:AAFa62GqMHuWMUbpJALC2gKrbTG6lzmCRMU'
-
 bot = telebot.TeleBot(config)
+
+user = None
 
 @bot.message_handler(commands=['start'])
 def welcome(message):
+    """
+    Function greeting the user at start
+    :param message: Message Data
+    :return:
+    """
+    global user
+    # Calculating time of day
     now = datetime.datetime.now()
     if now.hour >= 10 and now.hour < 17:
         welcomeMessage = 'Доброго дня, '
@@ -22,27 +33,40 @@ def welcome(message):
     else:
         welcomeMessage = 'Доброго утра, '
 
+    # Creating buttons on keyboard
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btnUSASituate = types.KeyboardButton('🇱🇷 Американский рынок - сейчас')
     btnRussiaSituate = types.KeyboardButton('🇷🇺 Российский рынок - сейчас')
-
     markup.add(btnUSASituate, btnRussiaSituate)
 
-    bot.send_message(message.chat.id,
-                     welcomeMessage + "{0.first_name} {0.last_name}.\nЯ - бот, который подскажет тебе всю информацию на "
-                                      "фондовом рынке на сегодняшний день".format(message.from_user, bot.get_me()),
-                     parse_mode='html', reply_markup=markup)
+    welcomeMessage += "{0.first_name} {0.last_name}.\nЯ - бот, который подскажет тебе всю информацию на " \
+                      "фондовом рынке на сегодняшний день".format(message.from_user, bot.get_me())
+
+    bot.send_message(message.chat.id, welcomeMessage, parse_mode='html', reply_markup=markup)
+    if User.checkUserDB(message.from_user.id) is False:
+        User.registerUserDB(message.from_user)
+        user = User(message.from_user.id)
 
 
 @bot.message_handler(content_types=['text'])
 def message(message):
+
+    global user
+    if user is None:
+        user = User(message.from_user.id)
+    user.updateDateLastMessage()
+
     nowTime = datetime.datetime.now()
     market = stockMarket.stockMarket()
     sendQuestion = bool(False)
+
     messageList = {
         'close': '🔓 Пока что у меня нет информации, так-как биржа закрыта, подожди немного.. 🔓',
         'weekend': '🔓 Сегодня выходной день, биржа не работает, подожди немного.. 🔓',
-        'dontKnow': '📊К сожалению в моём списке пока нет информации про этот котирующий инструмент📊'
+        'dontKnow': '📊К сожалению в моём списке пока нет информации про этот котирующий инструмент📊',
+        'successDelete': '❌Инструмент торговли удален из вашего портфеля❌',
+        'errorDelete': 'Невозможно удалить данный инструмент торговли, так-как его нет в вашем портфеле',
+        'successAdd': '✅Инструмент торговли добавлен к вам в портфель, чтобы отследить его напишите "Мои"✅'
     }
     splitMessage = message.text.split()
 
@@ -80,8 +104,6 @@ def message(message):
 
     if message.text[0] == '!':
         quotationTextMessage = message.text.replace('!', '')
-        # investing = ParseQuotation.ParseInvesting()
-
         if method.in_array(quotationTextMessage, ParseQuotation.listStocksName):
 
             quotationInfo = ParseQuotation.getQuotationByName(quotationTextMessage)
@@ -91,8 +113,36 @@ def message(message):
 
         else:
             resultMessage = messageList['dontKnow']
-
         bot.send_message(message.chat.id, resultMessage)
+
+    if method.in_array(message.text[0], ['+', '-']):
+
+        quotationName = re.sub('[-]|[+]', '', message.text.replace('+', ''))
+        if method.in_array(quotationName, ParseQuotation.listStocksName):
+            codeQuotation = ParseQuotation.listStocksName[quotationName]['code']
+            if message.text[0] == '+':
+                resultAdd = user.addQuotation({'nameQuotation': quotationName, 'codeQuotation': codeQuotation})
+                resultMessage = messageList['successAdd']
+            elif message.text[0] == '-':
+                resultDelete = user.removeQuotation({'nameQuotation': quotationName, 'codeQuotation': codeQuotation})
+
+                if resultDelete is False:
+                    resultMessage = messageList['errorDelete']
+                else:
+                    resultMessage = messageList['successDelete']
+
+        else:
+            resultMessage = messageList['dontKnow']
+
+        bot.send_message(message.chat.id, resultMessage, parse_mode='html')
+
+
+    if method.in_array(message.text, ['мои', 'Мои', 'МОИ']):
+
+        arQuotationUser = user.getQuotation()
+        resultMessage = ParseQuotation.getInfoMessageUserQuotation(arQuotationUser)
+        bot.send_message(message.chat.id, resultMessage)
+
 
 
 
@@ -106,6 +156,7 @@ def callback_inline(call):
 
     except Exception as e:
         print(repr(e))
+
 
 
 bot.polling(none_stop=True)

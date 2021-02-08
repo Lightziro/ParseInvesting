@@ -24,6 +24,15 @@ class ParseQuotation:
         'ВТБ': {'type': 'Stock', 'code': 'vtb_rts'},
         'Аэрофлот': {'type': 'Stock', 'code': 'aeroflot'},
         'Магнит': {'type': 'Stock', 'code': 'magnit_rts'},
+        'Coca Cola': {'type': 'Stock', 'code': 'coca-cola-co'},
+        'Nike': {'type': 'Stock', 'code': 'nike'},
+        'Walt Disney': {'type': 'Stock', 'code': 'disney'},
+        'НОВАТЭК': {'type': 'Stock', 'code': 'novatek_rts'},
+        'МТС': {'type': 'Stock', 'code': 'mts_rts'},
+        'РУСАЛ': {'type': 'Stock', 'code': 'united-company-rusal-plc%60'},
+        'Северсталь': {'type': 'Stock', 'code': 'severstal_rts'},
+        'Татнефть': {'type': 'Stock', 'code': 'tatneft_rts'},
+
 
         'ММВБ': {'type': 'Index', 'code': 'mcx'},
         'S&P 500': {'type': 'Index', 'code': 'us-spx-500-futures'},
@@ -176,9 +185,10 @@ class ParseQuotation:
             quotations = ParseQuotation.getQuotationSP500()
             listActualStocks = market.usMarket['currentStock']
 
-        messageMoexSituation = "По состоянию на " + nowTime + f", {indexName} снизился на " + str(
-            index['ChangeDayValue']) + \
-                               f" пунктов ({str(index['ChangeDayPercent'])}) и текущее его состояние {str(index['Value'])} пунктов.\n"
+        typeStatusText = 'снижается' if index['ChangeDayValue'] < 0 else 'растёт'
+
+        messageMoexSituation = "По состоянию на " + nowTime + f", {indexName} {typeStatusText} на " + str(index['ChangeDayValue']) + \
+                               f" пунктов ({str(index['ChangeDayPercent'])}%) и текущее его состояние {str(index['Value'])} пунктов.\n"
 
         messageTextLeaderFall = "\nЛидеры падения: \n"
         for i in range(0, 5):
@@ -219,5 +229,20 @@ class ParseQuotation:
                                   'Value']) + f' {method.getTextByCount(int(quotation["Value"]), ["пункт", "пункта", "пунктов"])}' + \
                           ', и на текущий момент ' + typeStatusText + ' на ' + str(quotation['ChangeDayValue']) + \
                           ' пункта (' + str(quotation["ChangeDayPercent"]) + '%)'
+
+        return messageTextInfo
+
+    @staticmethod
+    def getInfoMessageUserQuotation(arField = dict()):
+
+        messageTextInfo = '👇Ваш список ценных бумаг состоит из:👇\n\n'
+        for i in range(len(arField)):
+            quotation = arField[i]
+            quotationInfo = ParseQuotation.getQuotationByName(quotation['name'])
+
+            messageTextInfo += f'✅{str(quotation["name"])}, стоимость: ' +\
+                               str(quotationInfo['Value']) + f' руб. / За сегодня: {quotationInfo["ChangeDayValue"]} ' \
+                               f'{method.getTextByCount(int(quotationInfo["ChangeDayValue"]), ["пункт", "пункта", "пунктов"])}' \
+                               + f', ({quotationInfo["ChangeDayPercent"]}%)\n'
 
         return messageTextInfo
