@@ -5,7 +5,6 @@ from custom import method
 import random
 from telebot import types
 import stockMarket
-import mysql.connector
 from User import User
 import re
 
@@ -36,8 +35,9 @@ def welcome(message):
     # Creating buttons on keyboard
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btnUSASituate = types.KeyboardButton('🇱🇷 Американский рынок - сейчас')
+    btnActualIdea = types.KeyboardButton('🇱🇷 Актуальные идеи')
     btnRussiaSituate = types.KeyboardButton('🇷🇺 Российский рынок - сейчас')
-    markup.add(btnUSASituate, btnRussiaSituate)
+    markup.add(btnUSASituate, btnRussiaSituate, btnActualIdea)
 
     welcomeMessage += "{0.first_name} {0.last_name}.\nЯ - бот, который подскажет тебе всю информацию на " \
                       "фондовом рынке на сегодняшний день".format(message.from_user, bot.get_me())

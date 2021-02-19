@@ -116,6 +116,11 @@ class User:
 
     @staticmethod
     def registerUserDB(userData=[]):
+        """
+        Registers the user in the database
+        :param userData: User Data
+        :return:
+        """
         global db
         sql = "INSERT INTO telegramData (firstName, userName, language, telegramId, dateLastMessage, dateRegister) " \
               "VALUES (%(firstName)s, %(userName)s, %(language)s, %(telegramId)s, %(dateLastMessage)s, %(dateRegister)s)"

@@ -1,10 +1,10 @@
 import mysql.connector
 class DB:
 
-    hostDB = '141.8.192.93'
-    userDB = 'a0507369_shop'
-    passwordDB = 'Logan02022002'
-    dataBaseDB = 'a0507369_shop'
+    hostDB = '141.8.192.26'
+    userDB = 'a0514245_shop'
+    passwordDB = 'Tuscano32'
+    dataBaseDB = 'a0514245_shop'
 
     def __init__(self):
         try:
