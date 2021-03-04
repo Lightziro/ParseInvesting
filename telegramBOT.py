@@ -42,7 +42,7 @@ def welcome(message):
     btnRussiaSituate = types.KeyboardButton('🇷🇺 Российский рынок - сейчас')
     markup.add(btnUSASituate, btnRussiaSituate, btnActualIdea)
 
-    welcomeMessage += "{0.first_name} {0.last_name}.\nЯ - бот, который подскажет тебе всю информацию на " \
+    welcomeMessage += "{0.first_name}.\nЯ - бот, который подскажет тебе всю информацию на " \
                       "фондовом рынке на сегодняшний день".format(message.from_user, bot.get_me())
 
     bot.send_message(message.chat.id, welcomeMessage, parse_mode='html', reply_markup=markup)
