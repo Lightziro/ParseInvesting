@@ -139,7 +139,7 @@ def message(message):
     if message.text.upper() in 'МОИ':
 
         arQuotationUser = user.getQuotation()
-        resultMessage = ParseQuotation.getInfoMessageUserQuotation(arQuotationUser)
+        resultMessage = ConvertInMessage.getInfoMessageUserQuotation(arQuotationUser)
         bot.send_message(message.chat.id, resultMessage)
 
     if message.text in '🗓 Актуальные идеи':

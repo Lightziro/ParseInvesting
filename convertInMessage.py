@@ -95,3 +95,17 @@ class ConvertInMessage:
 
         return resultStr
 
+    @staticmethod
+    def getInfoMessageUserQuotation(arField = None):
+
+        messageTextInfo = '👇Ваш список ценных бумаг состоит из:👇\r\n'
+        for quotation in arField:
+            quotationInfo = ParseQuotation.getQuotationByName(quotation['name'])
+
+            messageTextInfo += f'✅{str(quotation["name"])}, стоимость: ' +\
+                               str(quotationInfo['Value']) + f' руб. / За сегодня: {quotationInfo["ChangeDayValue"]} ' \
+                               f'{method.getTextByCount(int(quotationInfo["ChangeDayValue"]), ["пункт", "пункта", "пунктов"])}' \
+                               + f', ({quotationInfo["ChangeDayPercent"]}%)\r\n'
+
+        return messageTextInfo
+
