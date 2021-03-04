@@ -5,8 +5,11 @@ from custom import method
 import random
 from telebot import types
 import stockMarket
+import constant
 from User import User
 import re
+import actualIdea
+from convertInMessage import ConvertInMessage
 
 config = '1666624885:AAFa62GqMHuWMUbpJALC2gKrbTG6lzmCRMU'
 bot = telebot.TeleBot(config)
@@ -35,7 +38,7 @@ def welcome(message):
     # Creating buttons on keyboard
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btnUSASituate = types.KeyboardButton('🇱🇷 Американский рынок - сейчас')
-    btnActualIdea = types.KeyboardButton('🇱🇷 Актуальные идеи')
+    btnActualIdea = types.KeyboardButton('🗓 Актуальные идеи')
     btnRussiaSituate = types.KeyboardButton('🇷🇺 Российский рынок - сейчас')
     markup.add(btnUSASituate, btnRussiaSituate, btnActualIdea)
 
@@ -57,46 +60,42 @@ def message(message):
     user.updateDateLastMessage()
 
     nowTime = datetime.datetime.now()
-    market = stockMarket.stockMarket()
+    marketRussia = stockMarket.StockMarket(typeMarket='RUSSIA')
+    marketUSA = stockMarket.StockMarket(typeMarket='USA')
     sendQuestion = bool(False)
 
-    messageList = {
-        'close': '🔓 Пока что у меня нет информации, так-как биржа закрыта, подожди немного.. 🔓',
-        'weekend': '🔓 Сегодня выходной день, биржа не работает, подожди немного.. 🔓',
-        'dontKnow': '📊К сожалению в моём списке пока нет информации про этот котирующий инструмент📊',
-        'successDelete': '❌Инструмент торговли удален из вашего портфеля❌',
-        'errorDelete': 'Невозможно удалить данный инструмент торговли, так-как его нет в вашем портфеле',
-        'successAdd': '✅Инструмент торговли добавлен к вам в портфель, чтобы отследить его напишите "Мои"✅'
-    }
     splitMessage = message.text.split()
 
-    if method.in_array(message.text, [market.ruMarket['textButton'], market.usMarket['textButton']]):
+    if method.in_array(message.text, [marketRussia.buttonText, marketUSA.buttonText]):
 
-        typeMarket = market.ruMarket if message.text == market.ruMarket['textButton'] else market.usMarket
+        if message.text in marketRussia.buttonText:
+            typeMarket = marketRussia
+        elif message.text in marketUSA.buttonText:
+            typeMarket = marketUSA
 
         today = datetime.datetime.today()
 
         if method.in_array(today.weekday(), [5, 6]):
             # if today is a day off
-            messageInfo = messageList['close']
+            messageInfo = constant.CLOSE_MARKET
 
-        elif nowTime > typeMarket['workTime']['workUntil'] or nowTime < typeMarket['workTime']['workWith']:
+        elif nowTime > typeMarket.workTimeUntil or nowTime < typeMarket.workTimeWith:
             # if the exchange's working hours are over
-            messageInfo = messageList['close']
+            messageInfo = constant.CLOSE_MARKET
 
         else:
             # output information from the exchange
-            messageInfo = ParseQuotation.getFullMessageSituation({'type': typeMarket['typeName']})
+            messageInfo = ConvertInMessage.getFullMessageSituation(typeMarket=typeMarket.typeName, marketObject=typeMarket)
 
             randQuestion = random.randint(0, 5)
             if randQuestion % 2 != 0:
+                # ask a question in 25% of cases about the market situation
                 sendQuestion = True
                 messageQuestion = 'Как Вам сегодняшняя ситуация на рынке?'
                 markClient = types.InlineKeyboardMarkup(row_width=2)
-                goodBtn = types.InlineKeyboardButton("👍", callback_data='good')
-                sosoBtn = types.InlineKeyboardButton("✊", callback_data='so-so')
-                badBtn = types.InlineKeyboardButton("👎", callback_data='bad')
-                markClient.add(goodBtn, sosoBtn, badBtn)
+                markClient.add(types.InlineKeyboardButton("👍", callback_data='good'))
+                markClient.add(types.InlineKeyboardButton("✊", callback_data='so-so'))
+                markClient.add(types.InlineKeyboardButton("👎", callback_data='bad'))
 
         bot.send_message(message.chat.id, messageInfo)
         if sendQuestion and sendQuestion not in locals():
@@ -109,10 +108,10 @@ def message(message):
             quotationInfo = ParseQuotation.getQuotationByName(quotationTextMessage)
             quotationInfo.update({'Name': quotationTextMessage})
 
-            resultMessage = ParseQuotation.getInfoMessageQuotation(quotationInfo)
+            resultMessage = ConvertInMessage.getInfoMessageQuotation(quotation=quotationInfo)
 
         else:
-            resultMessage = messageList['dontKnow']
+            resultMessage = constant.DONT_KNOW_QUOTATION
         bot.send_message(message.chat.id, resultMessage)
 
     if method.in_array(message.text[0], ['+', '-']):
@@ -122,26 +121,31 @@ def message(message):
             codeQuotation = ParseQuotation.listStocksName[quotationName]['code']
             if message.text[0] == '+':
                 resultAdd = user.addQuotation({'nameQuotation': quotationName, 'codeQuotation': codeQuotation})
-                resultMessage = messageList['successAdd']
+                resultMessage = constant.SUCCESS_ADD_IN_CASE
             elif message.text[0] == '-':
                 resultDelete = user.removeQuotation({'nameQuotation': quotationName, 'codeQuotation': codeQuotation})
 
                 if resultDelete is False:
-                    resultMessage = messageList['errorDelete']
+                    resultMessage = constant.NOT_QUOTATION_CASE
                 else:
-                    resultMessage = messageList['successDelete']
+                    resultMessage = constant.SUCCESS_DELETE_QUOTATION_IN_CASE
 
         else:
-            resultMessage = messageList['dontKnow']
+            resultMessage = constant.DONT_KNOW_QUOTATION
 
         bot.send_message(message.chat.id, resultMessage, parse_mode='html')
 
 
-    if method.in_array(message.text, ['мои', 'Мои', 'МОИ']):
+    if message.text.upper() in 'МОИ':
 
         arQuotationUser = user.getQuotation()
         resultMessage = ParseQuotation.getInfoMessageUserQuotation(arQuotationUser)
         bot.send_message(message.chat.id, resultMessage)
+
+    if message.text in '🗓 Актуальные идеи':
+        listIdea = actualIdea.Idea.GetList()
+        messageReturn = ConvertInMessage.convertListIdea(listIdea)
+        bot.send_message(message.chat.id, str(messageReturn))
 
 
 
