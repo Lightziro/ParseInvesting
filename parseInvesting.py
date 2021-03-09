@@ -33,6 +33,7 @@ class ParseQuotation:
         'Северсталь': {'type': 'Stock', 'code': 'severstal_rts'},
         'Татнефть': {'type': 'Stock', 'code': 'tatneft_rts'},
         'Интер РАО': {'type': 'Stock', 'code': 'inter-rao-ees_mm'},
+        'Tesla': {'type': 'Stock', 'code': 'tesla-motors'},
 
 
         'ММВБ': {'type': 'Index', 'code': 'mcx'},

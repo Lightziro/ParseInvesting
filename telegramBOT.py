@@ -55,8 +55,12 @@ def welcome(message):
 def message(message):
 
     global user
-    if user is None:
+    if user is None or (getattr(user, 'telegramId') != message.from_user.id):
         user = User(message.from_user.id)
+        print(hasattr(user, 'telegramId'))
+        if not hasattr(user, 'telegramId'):
+            User.registerUserDB(message.from_user)
+            user = User(message.from_user.id)
     user.updateDateLastMessage()
 
     nowTime = datetime.datetime.now()
