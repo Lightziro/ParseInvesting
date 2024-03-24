@@ -78,7 +78,7 @@ class method:
     @staticmethod
     def convertToFloat(number = str()):
         try:
-            number = re.sub('%|[+]|[.]', '', number).replace(',', '.')
+            number = re.sub(r'%|\+|\.|\(|\)', '', number).replace(',', '.')
             return float(number)
         except:
             return False

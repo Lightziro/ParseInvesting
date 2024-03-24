@@ -52,27 +52,27 @@ def message(message):
 
         today = datetime.datetime.today()
 
-        if method.in_array(today.weekday(), [5, 6]):
-            # if today is a day off
-            messageInfo = messageList['close']
-
-        elif nowTime > typeMarket['workTime']['workUntil'] or nowTime < typeMarket['workTime']['workWith']:
-            # if the exchange's working hours are over
-            messageInfo = messageList['close']
-
-        else:
+        # if method.in_array(today.weekday(), [5, 6]):
+        #     # if today is a day off
+        #     messageInfo = messageList['close']
+        #
+        # elif nowTime > typeMarket['workTime']['workUntil'] or nowTime < typeMarket['workTime']['workWith']:
+        #     # if the exchange's working hours are over
+        #     messageInfo = messageList['close']
+        #
+        # else:
             # output information from the exchange
-            messageInfo = ParseQuotation.getFullMessageSituation({'type': typeMarket['typeName']})
+        messageInfo = ParseQuotation.getFullMessageSituation({'type': typeMarket['typeName']})
 
-            randQuestion = random.randint(0, 5)
-            if randQuestion % 2 != 0:
-                sendQuestion = True
-                messageQuestion = 'Как Вам сегодняшняя ситуация на рынке?'
-                markClient = types.InlineKeyboardMarkup(row_width=2)
-                goodBtn = types.InlineKeyboardButton("👍", callback_data='good')
-                sosoBtn = types.InlineKeyboardButton("✊", callback_data='so-so')
-                badBtn = types.InlineKeyboardButton("👎", callback_data='bad')
-                markClient.add(goodBtn, sosoBtn, badBtn)
+        randQuestion = random.randint(0, 5)
+        if randQuestion % 2 != 0:
+            sendQuestion = True
+            messageQuestion = 'Как Вам сегодняшняя ситуация на рынке?'
+            markClient = types.InlineKeyboardMarkup(row_width=2)
+            goodBtn = types.InlineKeyboardButton("👍", callback_data='good')
+            sosoBtn = types.InlineKeyboardButton("✊", callback_data='so-so')
+            badBtn = types.InlineKeyboardButton("👎", callback_data='bad')
+            markClient.add(goodBtn, sosoBtn, badBtn)
 
         bot.send_message(message.chat.id, messageInfo)
         if sendQuestion and sendQuestion not in locals():
@@ -81,7 +81,6 @@ def message(message):
     if message.text[0] == '!':
         quotationTextMessage = message.text.replace('!', '')
         # investing = ParseQuotation.ParseInvesting()
-
         if method.in_array(quotationTextMessage, ParseQuotation.listStocksName):
 
             quotationInfo = ParseQuotation.getQuotationByName(quotationTextMessage)

@@ -85,12 +85,12 @@ class ParseQuotation:
         arInfo = []
 
         soup = BeautifulSoup(content.content, 'html.parser')
-        dataBlock = soup.find('div', class_='current-data').find('div', class_='top bold inlineblock')
+        dataBlock = soup.find(attrs={"data-test": "instrument-header-details"})
 
-        name = soup.find('h1', class_='float_lang_base_1 relativeAttr').getText()
-        value = method.convertToFloat(dataBlock.find('span', class_='arial_26').getText())
-        changeDayPercent = method.convertToFloat(dataBlock.find('span', class_='parentheses').getText())
-        changeDayValue = method.convertToFloat(dataBlock.findAll('span', class_='arial_20')[0].getText())
+        name = soup.find('h1', class_='font-bold').getText()
+        value = method.convertToFloat(dataBlock.find(attrs={"data-test": "instrument-price-last"}).getText())
+        changeDayPercent = method.convertToFloat(dataBlock.find(attrs={"data-test": "instrument-price-change-percent"}).getText())
+        changeDayValue = method.convertToFloat(dataBlock.find(attrs={"data-test": "instrument-price-change"}).getText())
 
         if not method.empty([name, value, changeDayPercent]):
             arInfo = {
