@@ -14,6 +14,7 @@ config = os.getenv('TELEGRAM_KEY')
 
 bot = telebot.TeleBot(config)
 
+
 @bot.message_handler(commands=['start'])
 def welcome(message):
     now = datetime.datetime.now()
@@ -34,7 +35,8 @@ def welcome(message):
 
     bot.send_message(message.chat.id,
                      welcomeMessage + "{0.first_name} {0.last_name}.\nЯ - бот, который подскажет тебе всю информацию на "
-                                      "фондовом рынке на сегодняшний день. \n\nЯ умею давать информацию о конкретной акции, просто напиши !НазваниеАкции. \nНапример: !Сбербанк".format(message.from_user, bot.get_me()),
+                                      "фондовом рынке на сегодняшний день. \n\nЯ умею давать информацию о конкретной акции, просто напиши !НазваниеАкции. \nНапример: !Сбербанк".format(
+                         message.from_user, bot.get_me()),
                      parse_mode='html', reply_markup=markup)
 
 
@@ -65,7 +67,7 @@ def message(message):
         #     messageInfo = messageList['close']
         #
         # else:
-            # output information from the exchange
+        # output information from the exchange
         messageInfo = ParseQuotation.getFullMessageSituation({'type': typeMarket['typeName']})
 
         randQuestion = random.randint(0, 5)
@@ -84,19 +86,16 @@ def message(message):
 
     if message.text[0] == '!':
         quotationTextMessage = message.text.replace('!', '')
-        # investing = ParseQuotation.ParseInvesting()
-        if method.in_array(quotationTextMessage, ParseQuotation.listStocksName):
-
-            quotationInfo = ParseQuotation.getQuotationByName(quotationTextMessage)
-            quotationInfo.update({'Name': quotationTextMessage})
-
+        name = method.find_in_array_by_key(quotationTextMessage, ParseQuotation.listStocksName, getKey=True,
+                                           findEntry=True)
+        if name:
+            quotationInfo = ParseQuotation.getQuotationByName(name)
+            quotationInfo.update({'Name': name})
             resultMessage = ParseQuotation.getInfoMessageQuotation(quotationInfo)
-
         else:
             resultMessage = messageList['dontKnow']
 
         bot.send_message(message.chat.id, resultMessage)
-
 
 
 @bot.callback_query_handler(func=lambda call: True)

@@ -18,6 +18,25 @@ class method:
                 return True
 
     @staticmethod
+    def find_in_array_by_key(str = str(), arraySearch = [], getKey = False, findEntry = False):
+        """
+        Function for checking whether an element is found in an array
+        :param str: The string that is being searched in the array
+        :param arraySearch: Array in which search for a string
+        :return: True if a string is found in the array
+        """
+        for element in arraySearch:
+            matches = False
+            if findEntry and str.upper() in element.upper():
+                matches = True
+            else:
+                if element == str:
+                    matches = True
+
+            if matches:
+                return element if (getKey) else arraySearch[element]
+
+    @staticmethod
     def is_array(array = []):
         """
         Function for checking whether a variable is an array
