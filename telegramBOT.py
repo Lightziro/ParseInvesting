@@ -30,7 +30,7 @@ def welcome(message):
 
     bot.send_message(message.chat.id,
                      welcomeMessage + "{0.first_name} {0.last_name}.\nЯ - бот, который подскажет тебе всю информацию на "
-                                      "фондовом рынке на сегодняшний день".format(message.from_user, bot.get_me()),
+                                      "фондовом рынке на сегодняшний день. \n\nЯ умею давать информацию о конкретной акции, просто напиши !НазваниеАкции. \nНапример: !Сбербанк".format(message.from_user, bot.get_me()),
                      parse_mode='html', reply_markup=markup)
 
 
