@@ -5,8 +5,12 @@ from custom import method
 import random
 from telebot import types
 import stockMarket
+import os
+from dotenv import load_dotenv
 
-config = '1666624885:AAFa62GqMHuWMUbpJALC2gKrbTG6lzmCRMU'
+load_dotenv()
+
+config = os.getenv('TELEGRAM_KEY')
 
 bot = telebot.TeleBot(config)
 
